@@ -25,8 +25,6 @@ def image_paths(input_dir='.'):
     return paths
 
 def display_image(path, canvas, max_width, max_height):
-    print(path)
-
     canvas.delete("all")
 
     # Image
@@ -54,10 +52,10 @@ def display_image(path, canvas, max_width, max_height):
     color = get_hour_color(hour)
     time = now.strftime('%-I:%M')
     sans_serif = tkf.Font(family='Sans-serif', size=64, weight='bold')
-    canvas.create_text(max_width - 200, max_height - 100, text=time, font=sans_serif, fill=color, anchor='center')
+    canvas.create_text(max_width - 150, max_height - 100, text=time, font=sans_serif, fill=color, anchor='center')
 
     # Morning indicator
-    sans_serif = tkf.Font(family='Sans-serif', size=64, weight='bold')
+    sans_serif = tkf.Font(family='Sans-serif', size=32, weight='bold')
     inc = int(max_height / 25)
     for i in range(24):
         hour_mark = (i + 19) % 24
@@ -83,7 +81,10 @@ def files_loop(paths, canvas, max_width, max_height):
 def main_loop(dir='.'):
     root = tk.Tk()
     root.attributes("-fullscreen", True)
-    canvas = tk.Canvas()
+    root.overrideredirect(True)
+    width = root.winfo_screenwidth()
+    height = root.winfo_screenheight()
+    canvas = tk.Canvas(root, width=width, height=height, highlightthickness=0)
     canvas.pack(side='top', fill='both', expand='yes')
     canvas.configure(background='black')
     while True:
