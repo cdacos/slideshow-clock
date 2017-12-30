@@ -1,13 +1,16 @@
+# -*- coding: utf-8 -*-
 import argparse
 import datetime
 from itertools import cycle
 import os
 try: # Python2
     import Tkinter as tk
+    import tkFont as tkf
 except ImportError: # Python3
     import tkinter as tk
-    from tkinter import font
-from PIL import Image, ImageTk  
+    import tkinter.font as tkf
+from PIL import Image, ImageTk
+from random import shuffle
 from time import sleep
 
 IMAGE_DELAY = 10 # Seconds
@@ -16,7 +19,7 @@ def image_paths(input_dir='.'):
     paths = []
     for root, dirs, files in os.walk(input_dir, topdown=True):
         for file in sorted(files):
-            if file.endswith(('jpg', 'png', 'gif')):
+            if file.endswith(('jpg', 'png', 'gif')): 
                 path = os.path.abspath(os.path.join(root, file))
                 paths.append(path)
     return paths
@@ -24,17 +27,23 @@ def image_paths(input_dir='.'):
 def display_image(path, canvas, max_width, max_height):
     print(path)
 
+    canvas.delete("all")
+
     # Image
     image = Image.open(path)
     width, height = image.size
-    width_ratio = max_width / width
-    height_ratio = max_height / height
+    # print([max_width, max_height])
+    # print([width, height])
+    width_ratio = max_width / float(width)
+    height_ratio = max_height / float(height)
+    # print([width_ratio, height_ratio])
     if width_ratio > height_ratio:
         width = height_ratio * width
         height = height_ratio * height
     else:
         width = width_ratio * width
         height = width_ratio * height
+    # print([width, height])
     image = image.resize((int(width), int(height)), Image.ANTIALIAS)
     photo = ImageTk.PhotoImage(image)
     canvas.create_image(int((max_width - width) / 2), 0, image=photo, anchor='nw')
@@ -44,13 +53,13 @@ def display_image(path, canvas, max_width, max_height):
     hour = now.hour
     color = get_hour_color(hour)
     time = now.strftime('%-I:%M')
-    sans_serif = font.Font(family='Sans-serif', size=96, weight='bold')
-    canvas.create_text(int(max_width / 2), max_height - 100, text=time, font=sans_serif, fill=color, anchor='center')
+    sans_serif = tkf.Font(family='Sans-serif', size=64, weight='bold')
+    canvas.create_text(max_width - 200, max_height - 100, text=time, font=sans_serif, fill=color, anchor='center')
 
     # Morning indicator
-    sans_serif = font.Font(family='Sans-serif', size=64, weight='bold')
+    sans_serif = tkf.Font(family='Sans-serif', size=64, weight='bold')
     inc = int(max_height / 25)
-    for i in range(0, 24):
+    for i in range(24):
         hour_mark = (i + 19) % 24
         color = get_hour_color(hour_mark)
         mark = '- ←' if hour_mark == hour else '-'
@@ -63,7 +72,11 @@ def get_hour_color(hour):
 
 def files_loop(paths, canvas, max_width, max_height):
     # print([max_width, max_height])
-    for path in paths:
+    walk = list(range(len(paths)))
+    shuffle(walk)
+    for i in walk:
+        path = paths[i]
+        print([i, path])
         display_image(path, canvas, max_width, max_height)
         sleep(IMAGE_DELAY)
 
